@@ -41,9 +41,11 @@ class BookController extends Controller
         }
 
         // Get the filtered books collection
-        $books = $booksQuery->get();
 
-        return view('book.index', compact('books'));
+        $cacheKey = 'books:' . $filter . ':' . $title;
+        $booksQuery = cache()->remember($cacheKey, 3600, fn() => $booksQuery->get());
+
+        return view('book.index', ['books'=> $booksQuery]);
     }
 
     /**
@@ -65,13 +67,18 @@ class BookController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Book $book)
+    public function show(int $id)
     {
         // Logic for displaying a specific book
-        
-        return view('books.show', ['book'=>$book->load([
+        $cacheKey = 'book:' . $id;
+
+        $book = cache()->remember($cacheKey,
+         3600,
+        fn() => book::with([
             'reviews' => fn($query) => $query->latest()
-        ])]);
+        ])->withAvgRating()->withReviewsCount()->findOrFail($id));
+        
+        return view('book.show', ['book'=>$book]);
     }
 
     /**

@@ -40,11 +40,10 @@
                   </div>
                   <div>
                   <div class="book-rating">
-                     {{number_format($book->reviews->avg('rating'), 1)}}
+                     <x-star-rating :rating="$book->reviews->avg('rating')"/>
+
                   </div>
-                  <div class="book-review-count">
-                     out of 5 reviews
-                  </div>
+                  
                   </div>
                </div>
             </div>
